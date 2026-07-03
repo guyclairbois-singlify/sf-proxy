@@ -1,3 +1,4 @@
+const fetch = require('node-fetch');
 const express             = require('express');
 const { Pool }            = require('pg');
 const crypto              = require('crypto');
@@ -65,13 +66,13 @@ app.post('/proxy', async (req, res) => {
     if (result.rows.length === 0)
       return res.status(401).json({ error: 'Invalid or revoked key' });
 
-    const agent    = new HttpsProxyAgent(process.env.QUOTAGUARDSTATIC_URL);
-    const response = await fetch(target_url, {
-      method:     method || 'GET',
-      headers:    fwdHeaders || {},
-      body:       fwdBody ? JSON.stringify(fwdBody) : undefined,
-      dispatcher: agent,
-    });
+	const agent    = new HttpsProxyAgent(process.env.QUOTAGUARDSTATIC_URL);
+	const response = await fetch(target_url, {
+	  method:  method || 'GET',
+	  headers: fwdHeaders || {},
+	  body:    fwdBody ? JSON.stringify(fwdBody) : undefined,
+	  agent,   // node-fetch uses 'agent', not 'dispatcher'
+	});
 
     const text = await response.text();
     res.status(response.status)
