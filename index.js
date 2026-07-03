@@ -36,9 +36,8 @@ app.post('/register', async (req, res) => {
 
     const key     = generateKey();
     const keyHash = hashKey(key);
-    await pool.query(
-      `INSERT INTO package_keys (org_id, key_hash, status, created_at)`,
-      ` VALUES ($1, $2, 'active', NOW())`,
+	await pool.query(
+      `INSERT INTO package_keys (org_id, key_hash, status, created_at) VALUES ($1, $2, 'active', NOW())`,
       [org_id, keyHash]
     );
     res.json({ api_key: key }); // Returned once — never stored in plain form
@@ -59,9 +58,8 @@ app.post('/proxy', async (req, res) => {
   if (!target_url) return res.status(400).json({ error: 'target_url required' });
 
   try {
-    const result = await pool.query(
-      `UPDATE package_keys SET last_used_at = NOW()`,
-      ` WHERE key_hash = $1 AND status = 'active' RETURNING org_id`,
+	const result = await pool.query(
+      `UPDATE package_keys SET last_used_at = NOW() WHERE key_hash = $1 AND status = 'active' RETURNING org_id`,
       [hashKey(packageKey)]
     );
     if (result.rows.length === 0)
